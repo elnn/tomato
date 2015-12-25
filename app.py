@@ -25,7 +25,7 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'status',
-            'values': args,
+            'values': [args[0], args[3]],
         })
 
     @make_method('/muse/elements/alpha_absolute', 'ffff')
@@ -33,7 +33,7 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'alpha',
-            'values': args,
+            'values': [args[0], args[3]],
         })
 
     @make_method('/muse/elements/beta_absolute', 'ffff')
@@ -41,7 +41,7 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'beta',
-            'values': args,
+            'values': [args[0], args[3]],
         })
 
     @make_method('/muse/elements/gamma_absolute', 'ffff')
@@ -49,7 +49,7 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'gamma',
-            'values': args,
+            'values': [args[0], args[3]],
         })
 
     @make_method(None, None)
