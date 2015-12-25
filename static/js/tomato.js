@@ -34,8 +34,29 @@ $(function() {
       ws.onmessage = function(event) {
         var json = JSON.parse(event.data);
         if (json.op === 'data') {
-          /* TODO */
-          console.log(json.type, json.values);
+          if (json.type === 'status') {
+            chart.isActive = true;
+            for (var i = 0; i < 4; i++) {
+              if (!json.values[i]) {
+                chart.isActive = false;
+                $('#status-' + i).addClass('btn-danger');
+                $('#status-' + i).removeClass('btn-success');
+              }
+              else {
+                $('#status-' + i).addClass('btn-success');
+                $('#status-' + i).removeClass('btn-danger');
+              }
+            }
+          }
+          else if (chart.isActive && json.type === 'alpha') {
+            chart.addAlpha(json.values);
+          }
+          else if (chart.isActive && json.type === 'beta') {
+            /* TODO */
+          }
+          else if (chart.isActive && json.type == 'gamma') {
+            chart.addGamma(json.values);
+          }
         }
         else if (json.op === 'muse-start') {
           if (json.success) {
