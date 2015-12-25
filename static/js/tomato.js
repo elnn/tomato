@@ -22,38 +22,56 @@ $(function() {
 
       ws.onopen = function() {
         log('WebSocket opened.');
+        $('#toggle-muse').bootstrapToggle('enable');
       };
 
       ws.onclose = function() {
         log('WebSocket closed.');
-        $('#btn-connect').removeClass('disabled');
+        $('#toggle-websocket').bootstrapToggle('off');
+        $('#toggle-muse').bootstrapToggle('disable');
       };
 
       ws.onmessage = function(event) {
         var json = JSON.parse(event.data);
-        /* TODO */
-        log(JSON.stringify(json));
+        if (json.op === 'data') {
+          /* TODO */
+          console.log(json.type, json.values);
+        }
+        else if (json.op === 'muse-start') {
+          if (json.success) {
+            log('Muse started.');
+          }
+          else {
+            log('Muse failed to start.');
+          }
+        }
+        else if (json.op === 'muse-stop') {
+          if (json.success) {
+            log('Muse stopped.');
+          }
+          else {
+            log('Muse failed to stop.');
+          }
+        }
       };
     }
   }
 
-  $('#btn-connect').click(function() {
-    if ($(this).hasClass('disabled')) {
-      log('WebSocket already connected.');
+  $('#toggle-websocket').change(function() {
+    if ($(this).prop('checked')) {
+      connect();
     }
     else {
-      log('Connecting to WebSocket server...');
-      $('#btn-connect').addClass('disabled');
-      connect();
+      ws.close();
     }
   });
 
-  $('#btn-hello').click(function() {
-    if (!ws) {
-      log('WebSocket not initialized.');
+  $('#toggle-muse').change(function() {
+    if ($(this).prop('checked')) {
+      ws.send(JSON.stringify({ op: 'muse-start' }));
     }
     else {
-      ws.send(JSON.stringify({ message: 'Hello, World!' }));
+      ws.send(JSON.stringify({ op: 'muse-stop' }));
     }
   });
 });

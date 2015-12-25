@@ -8,10 +8,12 @@
     <title>Tomato</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/sandstone/bootstrap.min.css">
+    <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css">
     <link rel="stylesheet" href="{{ static_url('css/tomato.css') }}">
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
     <script src="{{ static_url('js/tomato.js') }}"></script>
 
     <!--[if lt IE 9]>
@@ -22,8 +24,16 @@
 
   <body>
     <div class="container">
-      <button id="btn-connect" class="btn btn-default btn-sm">Connect</button>
-      <button id="btn-hello" class="btn btn-default btn-sm">Say Hello</button>
+      <div>
+        <label class="checkbox-inline">
+          <input id="toggle-websocket" data-toggle="toggle" type="checkbox">
+          WebSocket
+        </label>
+        <label class="checkbox-inline">
+          <input id="toggle-muse" data-toggle="toggle" type="checkbox" disabled>
+          Muse
+        </label>
+      </div>
       <hr>
       <textarea id="message-box" class="form-control" rows="7" readonly></textarea>
     </div>
