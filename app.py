@@ -23,17 +23,15 @@ class MuseServerThread(ServerThread):
     @make_method('/muse/elements/is_good', 'iiii')
     def status_callback(self, path, args):
         self.app.publish({
-            'op': 'data',
             'type': 'status',
-            'value': [args[0], args[3]],
+            'value': (sum(args) > 0.),
         })
 
     @make_method('/muse/elements/experimental/concentration', 'f')
     def concentration_callback(self, path, args):
         self.app.publish({
-            'op': 'data',
-            'type': 'concentration',
-            'value': args[0],
+            'type': 'score',
+            'value': (100. * args[0]),
         })
 
 

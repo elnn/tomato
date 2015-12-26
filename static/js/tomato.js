@@ -3,54 +3,33 @@ $(function() {
   var valid = false;
   var series = null;
 
-  function log(message) {
-    var now = new Date();
-    var hh = ('0' + now.getHours()).slice(-2);
-    var mm = ('0' + now.getMinutes()).slice(-2);
-    var ss = ('0' + now.getSeconds()).slice(-2);
-    var timestamp = '[' + hh + ':' + mm + ':' + ss + ']';
-    $('#message-box').prepend(timestamp + ' ' + message + '\n');
-  }
-
   function connect() {
     var websocket = window['WebSocket'] || window['MozWebSocket'];
     var host = document.location.host;
 
     if (!websocket) {
-      log('WebSocket not supported.');
+      console.log('WebSocket not supported.');
     }
     else {
       ws = new websocket('ws://' + host + '/ws');
 
       ws.onopen = function() {
-        log('WebSocket opened.');
+        console.log('WebSocket opened.');
       };
 
       ws.onclose = function() {
-        log('WebSocket closed.');
+        console.log('WebSocket closed.');
       };
 
       ws.onmessage = function(event) {
         var json = JSON.parse(event.data);
-        if (json.op === 'data') {
-          if (json.type === 'status') {
-            valid = json.value[0] && json.value[1];
-            var bs = ['#status-sensor-left', '#status-sensor-right'];
-            var cs = ['btn-warning', 'btn-success'];
-            for (var i = 0; i < 2; ++i) {
-              var status = json.value[i];
-              $(bs[i]).addClass(cs[status]).removeClass(cs[1-status]);
-            }
-          }
-          else if (json.type === 'concentration' && valid && series) {
-            var now = (new Date()).getTime();
-            // var shift = (series[0].data.length >= 100);
-            var shift = false;
-            series[0].addPoint([now, json.value], true, shift);
-          }
+        if (json.type === 'status') {
+          valid = json.value;
+          $('#status').html((valid) ? 'GOOD' : 'BAD');
         }
-        else if (json.op === 'message') {
-          log(json.value);
+        else if (json.type === 'score' && valid) {
+          var now = (new Date()).getTime();
+          series[0].addPoint([now, json.value], true, false);
         }
       };
     }
@@ -85,7 +64,7 @@ $(function() {
       },
     },
     series: [{
-      name: 'Concentration',
+      name: 'Score',
       data: [],
       marker: { enabled: false },
     }],
@@ -98,7 +77,7 @@ $(function() {
     yAxis: {
       visible: true,
       min: 0.0,
-      max: 1.0,
+      max: 100.0,
     },
   });
 });
