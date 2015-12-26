@@ -7,7 +7,8 @@ import tornado.web
 import tornado.websocket
 
 from tornado.options import define, options
-define('port', default=8000, help='run on the given port', type=int)
+define('app_port', default=8000, type=int)
+define('osc_port', default=5000, type=int)
 
 from liblo import make_method
 from liblo import ServerThread
@@ -15,8 +16,8 @@ from liblo import ServerThread
 
 class MuseServerThread(ServerThread):
 
-    def __init__(self, port=5000, app=None):
-        ServerThread.__init__(self, port)
+    def __init__(self, app, osc_port=5000):
+        ServerThread.__init__(self, osc_port)
         self.app = app
 
     @make_method('/muse/elements/is_good', 'iiii')
@@ -34,10 +35,6 @@ class MuseServerThread(ServerThread):
             'type': 'concentration',
             'value': args[0],
         })
-
-    @make_method(None, None)
-    def fallback(self, path, args, types, src):
-        pass
 
 
 class Application(tornado.web.Application):
@@ -58,7 +55,6 @@ class Application(tornado.web.Application):
         ]
 
         self.clients = set()
-        self.muse = MuseServerThread(app=self)
 
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -75,33 +71,24 @@ class MainHandler(tornado.web.RequestHandler):
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
-    @property
-    def app(self):
-        return self.application
-
     def open(self):
         logging.info('WebSocket opened.')
-        self.app.clients.add(self)
-        self.app.muse.start()
-        logging.info('Muse started.')
+        self.application.clients.add(self)
 
     def on_close(self):
         logging.info('WebSocket closed.')
-        self.app.clients.remove(self)
-        self.app.muse.stop()
-        logging.info('Muse stopped.')
-
-    def on_message(self, message):
-        logging.error('Received undefined message: %s' % message)
+        self.application.clients.remove(self)
 
 
 if __name__ == '__main__':
-    tornado.options.parse_command_line()
-    httpserver = tornado.httpserver.HTTPServer(Application())
     try:
-        logging.info('Listening on port %d.' % options.port)
-        httpserver.listen(options.port)
+        tornado.options.parse_command_line()
+        app = Application()
+        osc = MuseServerThread(app, options.osc_port)
+        osc.start()
+        httpserver = tornado.httpserver.HTTPServer(app)
+        httpserver.listen(options.app_port)
         tornado.ioloop.IOLoop().instance().start()
     except KeyboardInterrupt:
-        logging.info('Exiting app. Bye!')
+        osc.stop()
         tornado.ioloop.IOLoop().instance().stop()
