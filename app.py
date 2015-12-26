@@ -27,12 +27,12 @@ class MuseServerThread(ServerThread):
             'value': [args[0], args[3]],
         })
 
-    @make_method('/muse/elements/alpha_relative', 'ffff')
-    def alpha_callback(self, path, args):
+    @make_method('/muse/elements/experimental/concentration', 'f')
+    def concentration_callback(self, path, args):
         self.app.publish({
             'op': 'data',
-            'type': 'alpha',
-            'value': (args[0] + args[3]) / 2,
+            'type': 'concentration',
+            'value': args[0],
         })
 
     @make_method(None, None)

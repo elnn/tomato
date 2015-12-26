@@ -42,15 +42,11 @@ $(function() {
               $(bs[i]).addClass(cs[status]).removeClass(cs[1-status]);
             }
           }
-          else if (valid && series) {
-            var idx = -1;
-            if (json.type === 'alpha') { idx = 0; }
-
-            if (idx > -1) {
-              var now = (new Date()).getTime();
-              var shift = (series[idx].data.length >= 100);
-              series[idx].addPoint([now, json.value], true, shift);
-            }
+          else if (json.type === 'concentration' && valid && series) {
+            var now = (new Date()).getTime();
+            // var shift = (series[0].data.length >= 100);
+            var shift = false;
+            series[0].addPoint([now, json.value], true, shift);
           }
         }
         else if (json.op === 'message') {
@@ -88,13 +84,11 @@ $(function() {
         }
       },
     },
-    series: [
-      {
-        name: 'Alpha',
-        data: [],
-        marker: { enabled: false },
-      },
-    ],
+    series: [{
+      name: 'Concentration',
+      data: [],
+      marker: { enabled: false },
+    }],
     title: { text: 'Brain Waves' },
     legend: { enabled: true },
     xAxis: {
