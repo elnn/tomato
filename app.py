@@ -97,7 +97,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    logging.info('Listening on port %d.' % options.port)
     httpserver = tornado.httpserver.HTTPServer(Application())
-    httpserver.listen(options.port)
-    tornado.ioloop.IOLoop().instance().start()
+    try:
+        logging.info('Listening on port %d.' % options.port)
+        httpserver.listen(options.port)
+        tornado.ioloop.IOLoop().instance().start()
+    except KeyboardInterrupt:
+        logging.info('Exiting app. Bye!')
+        tornado.ioloop.IOLoop().instance().stop()
