@@ -42,10 +42,15 @@ $(function() {
               $(bs[i]).addClass(cs[status]).removeClass(cs[1-status]);
             }
           }
-          else if (json.type === 'alpha' && valid && series) {
-            var now = (new Date()).getTime();
-            var alpha = (json.value[0] + json.value[1]) / 2;
-            series.addPoint([now, alpha], true, true);
+          else if (valid && series) {
+            var idx = -1;
+            if (json.type === 'alpha') { idx = 0; }
+
+            if (idx > -1) {
+              var now = (new Date()).getTime();
+              var shift = (series[idx].data.length >= 100);
+              series[idx].addPoint([now, json.value], true, shift);
+            }
           }
         }
         else if (json.op === 'message') {
@@ -73,29 +78,25 @@ $(function() {
     },
   });
 
-  var initData = [];
-  var t0 = (new Date()).getTime();
-  for (var i = -99; i <= 0; ++i) {
-    initData.push({ x: t0 + 1000 * i, y: 0.0 });
-  }
-
   $('#chart').highcharts({
     chart: {
       type: 'spline',
       animation: Highcharts.svg,
       events: {
         load: function() {
-          series = this.series[0];
+          series = this.series;
         }
       },
     },
-    series: [{
-      marker: { enabled: false },
-      name: 'Alpha',
-      data: initData,
-    }],
-    title: { text: 'Alpha' },
-    legend: { enabled: false },
+    series: [
+      {
+        name: 'Alpha',
+        data: [],
+        marker: { enabled: false },
+      },
+    ],
+    title: { text: 'Brain Waves' },
+    legend: { enabled: true },
     xAxis: {
       type: 'datetime',
       visible: true,

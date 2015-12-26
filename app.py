@@ -32,7 +32,7 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'alpha',
-            'value': [args[0], args[3]],
+            'value': (args[0] + args[3]) / 2,
         })
 
     @make_method(None, None)
@@ -58,7 +58,7 @@ class Application(tornado.web.Application):
         ]
 
         self.clients = set()
-        self.muse = None
+        self.muse = MuseServerThread(app=self)
 
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -82,23 +82,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         logging.info('WebSocket opened.')
         self.app.clients.add(self)
-
-        assert(self.app.muse is None)
-        self.app.muse = MuseServerThread(app=self.app)
         self.app.muse.start()
         logging.info('Muse started.')
-        self.app.publish({
-            'op': 'message',
-            'value': 'Muse started.',
-        })
 
     def on_close(self):
         logging.info('WebSocket closed.')
         self.app.clients.remove(self)
-
-        assert(isinstance(self.app.muse, ServerThread))
         self.app.muse.stop()
-        self.app.muse = None
         logging.info('Muse stopped.')
 
     def on_message(self, message):
