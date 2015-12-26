@@ -10,7 +10,6 @@ from tornado.options import define, options
 define('port', default=8000, help='run on the given port', type=int)
 
 from liblo import make_method
-from liblo import ServerError
 from liblo import ServerThread
 
 
@@ -25,31 +24,15 @@ class MuseServerThread(ServerThread):
         self.app.publish({
             'op': 'data',
             'type': 'status',
-            'values': [args[0], args[3]],
+            'value': [args[0], args[3]],
         })
 
-    @make_method('/muse/elements/alpha_absolute', 'ffff')
+    @make_method('/muse/elements/alpha_relative', 'ffff')
     def alpha_callback(self, path, args):
         self.app.publish({
             'op': 'data',
             'type': 'alpha',
-            'values': [args[0], args[3]],
-        })
-
-    @make_method('/muse/elements/beta_absolute', 'ffff')
-    def beta_callback(self, path, args):
-        self.app.publish({
-            'op': 'data',
-            'type': 'beta',
-            'values': [args[0], args[3]],
-        })
-
-    @make_method('/muse/elements/gamma_absolute', 'ffff')
-    def gamma_callback(self, path, args):
-        self.app.publish({
-            'op': 'data',
-            'type': 'gamma',
-            'values': [args[0], args[3]],
+            'value': [args[0], args[3]],
         })
 
     @make_method(None, None)
@@ -100,60 +83,26 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         logging.info('WebSocket opened.')
         self.app.clients.add(self)
 
+        assert(self.app.muse is None)
+        self.app.muse = MuseServerThread(app=self.app)
+        self.app.muse.start()
+        logging.info('Muse started.')
+        self.app.publish({
+            'op': 'message',
+            'value': 'Muse started.',
+        })
+
     def on_close(self):
         logging.info('WebSocket closed.')
         self.app.clients.remove(self)
 
+        assert(isinstance(self.app.muse, ServerThread))
+        self.app.muse.stop()
+        self.app.muse = None
+        logging.info('Muse stopped.')
+
     def on_message(self, message):
-        json = tornado.escape.json_decode(message)
-        op = json.get('op')
-
-        if op == 'muse-start':
-            if not self.app.muse:
-                try:
-                    self.app.muse = MuseServerThread(app=self.app)
-                    self.app.muse.start()
-                    logging.info('Muse started.')
-                    self.app.publish({
-                        'op': 'muse-start',
-                        'success': True,
-                    })
-                except ServerError as e:
-                    self.app.muse = None
-                    logging.error('Muse error: %s' % e)
-                    self.app.publish({
-                        'op': 'muse-start',
-                        'success': False,
-                    })
-            else:
-                logging.error('Muse already started.')
-                self.app.publish({
-                    'op': 'muse-start',
-                    'success': False,
-                })
-
-        elif op == 'muse-stop':
-            if isinstance(self.app.muse, ServerThread):
-                self.app.muse.stop()
-                self.app.muse = None
-                logging.info('Muse stopped.')
-                self.app.publish({
-                    'op': 'muse-stop',
-                    'success': True,
-                })
-            else:
-                logging.error('Muse already stopped.')
-                self.app.publish({
-                    'op': 'muse-stop',
-                    'success': False,
-                })
-
-        else:
-            logging.error('Received undefined message: %s' % message)
-            self.app.publish({
-                'op': op,
-                'success': False,
-            })
+        logging.error('Received undefined message: %s' % message)
 
 
 if __name__ == '__main__':

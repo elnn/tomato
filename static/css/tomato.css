@@ -1,16 +1,14 @@
-.chart {
+h2 {
+  margin-bottom: 20px;
+}
+
+#message-box {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+#chart {
   min-width: 310px;
-  margin: 0 auto;
-}
-
-.chart-spline {
   height: 400px;
-}
-
-.chart-binary {
-  height: 50px;
-}
-
-#status button {
-  margin: 5px;
+  margin: 0 auto;
 }
