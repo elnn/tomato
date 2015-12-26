@@ -7,13 +7,12 @@
 
     <title>Tomato</title>
 
-    <link rel="stylesheet" href="{{ static_url('css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ static_url('css/bootstrap-switch.min.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/vendor/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/flat-ui.min.css') }}">
     <link rel="stylesheet" href="{{ static_url('css/tomato.css') }}">
 
-    <script src="{{ static_url('js/jquery.min.js') }}"></script>
-    <script src="{{ static_url('js/bootstrap.min.js') }}"></script>
-    <script src="{{ static_url('js/bootstrap-switch.min.js') }}"></script>
+    <script src="{{ static_url('js/vendor/jquery.min.js') }}"></script>
+    <script src="{{ static_url('js/flat-ui.min.js') }}"></script>
     <script src="{{ static_url('js/highcharts.min.js') }}"></script>
     <script src="{{ static_url('js/tomato.js') }}"></script>
   </head>
@@ -21,29 +20,36 @@
   <body>
     <div class="jumbotron">
       <div class="container">
-        <h1>Tomato</h1>
         <p>Stay focused with brain sensing headband.</p>
       </div>
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-md-6">
-          <h2>Controls</h2>
-          <input type="checkbox" id="checkbox-websocket">
+        <div class="col-sm-6">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Connection</div>
+            <div class="panel-body">
+              <input type="checkbox" data-toggle="switch" data-on-color="success" data-off-color="warning" id="checkbox-connection">
+            </div>
+          </div>
         </div>
-        <div class="col-md-6">
-          <h2>Status</h2>
-          <span id="status">BAD</span>
+        <div class="col-sm-6">
+          <div class="panel panel-info">
+            <div class="panel-heading">Sensor</div>
+            <div class="panel-body">
+              <input type="checkbox" data-toggle="switch" data-on-color="success" id="checkbox-sensor">
+            </div>
+          </div>
         </div>
       </div>
-      <hr>
-      <div class="row">
-        <div class="col-md-12">
-          <h2>Chart</h2>
+    </div>
+    <div class="container">
+      <div class="panel panel-info">
+        <div class="panel-heading">Tracks</div>
+        <div class="panel-body">
           <div id="chart"></div>
         </div>
       </div>
-      <hr>
     </div>
   </body>
 </html>

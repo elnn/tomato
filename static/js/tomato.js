@@ -19,13 +19,15 @@ $(function() {
 
       ws.onclose = function() {
         console.log('WebSocket closed.');
+        valid = false;
+        $('#checkbox-sensor').bootstrapSwitch('state', valid);
       };
 
       ws.onmessage = function(event) {
         var json = JSON.parse(event.data);
         if (json.type === 'status') {
           valid = json.value;
-          $('#status').html((valid) ? 'GOOD' : 'BAD');
+          $('#checkbox-sensor').bootstrapSwitch('state', valid);
         }
         else if (json.type === 'score' && valid) {
           var now = (new Date()).getTime();
@@ -35,18 +37,17 @@ $(function() {
     }
   }
 
-  /* websocket switch */
-  $('#checkbox-websocket').bootstrapSwitch({
-    size: 'small',
-    labelText: 'WebSocket',
-    onColor: 'success',
-    offColor: 'warning',
+  $('#checkbox-connection').bootstrapSwitch({
+    state: false,
     onSwitchChange: function(event, state) {
       (state) ? connect() : ws.close();
     },
   });
 
-  /* chart */
+  $('#checkbox-sensor').bootstrapSwitch({
+    state: false,
+  });
+
   Highcharts.setOptions({
     global: {
       useUTC: false,
@@ -62,17 +63,20 @@ $(function() {
           series = this.series;
         }
       },
+      style: {
+        fontFamily: 'Lato, sans-serif',
+      },
     },
     series: [{
       name: 'Score',
       data: [],
       marker: { enabled: false },
     }],
-    title: { text: 'Brain Waves' },
+    title: { text: null },
     legend: { enabled: true },
     xAxis: {
-      type: 'datetime',
       visible: true,
+      type: 'datetime',
     },
     yAxis: {
       visible: true,
